@@ -1,5 +1,6 @@
 package gal.usc.etse.grei.es.project.controller;
 
+import com.github.fge.jsonpatch.JsonPatchException;
 import gal.usc.etse.grei.es.project.model.Movie;
 import gal.usc.etse.grei.es.project.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -58,11 +61,14 @@ public class MovieController {
     }
 
     @DeleteMapping(path = "{id}")
-    public void delete(@PathVariable("id") String id) {
+    void delete(@PathVariable("id") String id) {
         movies.delete(id);
     }
 
-
+    @PatchMapping(path = "{id}")
+    Optional<Movie> patch(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> movie) throws JsonPatchException {
+        return movies.patch(id, movie);
+    }
 
 }
 
