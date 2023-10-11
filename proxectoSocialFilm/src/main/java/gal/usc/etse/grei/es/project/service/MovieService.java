@@ -33,6 +33,8 @@ public class MovieService {
     public Optional<Movie> get(String id) {
         return movies.findById(id);
     }
-
+    
+    public void delete(String id) { movies.deleteById(id); }
+    
     public Movie put(Movie movie) { return movies.save(movie); }
 }
