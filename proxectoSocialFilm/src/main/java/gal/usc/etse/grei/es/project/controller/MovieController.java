@@ -51,4 +51,12 @@ public class MovieController {
     ResponseEntity<Movie> get(@PathVariable("id") String id) {
         return ResponseEntity.of(movies.get(id));
     }
+
+    @PostMapping("")
+    Movie createMovie(@RequestBody Movie movie) {
+        return movies.put(movie);
+    }
+
+
 }
+

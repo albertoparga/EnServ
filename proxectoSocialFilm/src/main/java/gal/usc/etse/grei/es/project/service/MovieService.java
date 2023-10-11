@@ -33,4 +33,6 @@ public class MovieService {
     public Optional<Movie> get(String id) {
         return movies.findById(id);
     }
+
+    public Movie put(Movie movie) { return movies.save(movie); }
 }
