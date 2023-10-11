@@ -36,5 +36,5 @@ public class MovieService {
     
     public void delete(String id) { movies.deleteById(id); }
     
-    public Movie put(Movie movie) { return movies.save(movie); }
+    public Movie create(Movie movie) { return movies.save(movie); }
 }

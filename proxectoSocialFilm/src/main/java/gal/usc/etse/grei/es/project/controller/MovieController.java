@@ -54,7 +54,7 @@ public class MovieController {
 
     @PostMapping("")
     Movie createMovie(@RequestBody Movie movie) {
-        return movies.put(movie);
+        return movies.create(movie);
     }
 
     @DeleteMapping(path = "{id}")
