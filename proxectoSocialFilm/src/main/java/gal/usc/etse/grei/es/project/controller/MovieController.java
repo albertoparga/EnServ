@@ -57,6 +57,12 @@ public class MovieController {
         return movies.put(movie);
     }
 
+    @DeleteMapping(path = "{id}")
+    public void delete(@PathVariable("id") String id) {
+        movies.delete(id);
+    }
+
+
 
 }
 
