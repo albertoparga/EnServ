@@ -1,9 +1,14 @@
 package gal.usc.etse.grei.es.project.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jdk.jfr.Name;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -12,10 +17,14 @@ import java.util.StringJoiner;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
     @Id
+    @NotBlank(message = "El campo email es obligatorio")
+    @Email
     private String email;
+    @NotEmpty(message = "El campo name es obligatorio")
     private String name;
     private String country;
     private String picture;
+    @NotNull(message = "El campo birthday es obligatorio")
     private Date birthday;
     private List<User> friends;
 
