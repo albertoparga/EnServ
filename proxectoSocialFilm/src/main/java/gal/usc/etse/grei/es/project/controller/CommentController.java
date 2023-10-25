@@ -1,7 +1,9 @@
 package gal.usc.etse.grei.es.project.controller;
 
+import com.github.fge.jsonpatch.JsonPatchException;
 import gal.usc.etse.grei.es.project.model.Assessment;
 import gal.usc.etse.grei.es.project.model.Film;
+import gal.usc.etse.grei.es.project.model.User;
 import gal.usc.etse.grei.es.project.service.CommentService;
 import gal.usc.etse.grei.es.project.service.FilmService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,14 +30,27 @@ public class CommentController {
     }
 
     @GetMapping(
-            path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Assessment> get(@PathVariable("id") String id) {
-        return ResponseEntity.of(comments.get(id));
-    }
-    
+    ResponseEntity<Page<Assessment>> getBy(
+            @RequestParam(name = "filmId", defaultValue="") String filmId,
+            @RequestParam(name = "userId", defaultValue="") String userId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @RequestParam(name = "sort", defaultValue = "") List<String> sort
+    ) {
+        List<Sort.Order> criteria = sort.stream().map(string -> {
+                    if (string.startsWith("+")) {
+                        return Sort.Order.asc(string.substring(1));
+                    } else if (string.startsWith("-")) {
+                        return Sort.Order.desc(string.substring(1));
+                    } else return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
+        return ResponseEntity.of(comments.getBy(page, size, Sort.by(criteria), filmId, userId));
+    }
 
     @PostMapping("{filmId}/{userId}")
     Assessment createComment(@PathVariable("filmId") String filmId, @PathVariable("userId") String userId, @RequestBody Assessment com) {
@@ -43,6 +60,11 @@ public class CommentController {
     @DeleteMapping(path = "{id}")
     public void deleteComment(@PathVariable("id") String id) {
         comments.delete(id);
+    }
+
+    @PatchMapping(path = "{id}")
+    Optional<Assessment> patchUser(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> user) throws JsonPatchException {
+        return comments.patch(id, user);
     }
 
 }
