@@ -2,8 +2,10 @@ package gal.usc.etse.grei.es.project.service;
 
 import gal.usc.etse.grei.es.project.model.Assessment;
 import gal.usc.etse.grei.es.project.model.Film;
+import gal.usc.etse.grei.es.project.model.User;
 import gal.usc.etse.grei.es.project.repository.CommentRepository;
 import gal.usc.etse.grei.es.project.repository.FilmRepository;
+import gal.usc.etse.grei.es.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -14,11 +16,13 @@ import java.util.Optional;
 public class CommentService {
     private final CommentRepository comments;
     private final FilmRepository films;
+    private final UserRepository users;
 
     @Autowired
-    public CommentService(CommentRepository comments, FilmRepository films) {
+    public CommentService(CommentRepository comments, FilmRepository films, UserRepository users) {
         this.comments = comments;
         this.films = films;
+        this.users = users;
     }
 
     public Optional<Page<Assessment>> get(int page, int size, Sort sort) {
@@ -39,17 +43,26 @@ public class CommentService {
     
     public Assessment create(String filmId, String userId, Assessment com) {
         Optional<Film> f = films.findById(filmId);
-        //Optional<User> u = users.findById(userId);
+        Optional<User> u = users.findById(userId);
 
-        if (f.isPresent() /*&& u.isPresent()*/) {
+        if (f.isPresent() && u.isPresent()) {
             Film film = f.get();
-            //User user = u.get();
+            User user = u.get();
             com.setFilm(film);
-            //com.setuser(user);
+            com.setUser(user);
 
             return comments.save(com);
         }
 
         return null;
     }
+
+    public Assessment getByFilmId(String filmId) {
+        return comments.findByFilm(filmId);
+    }
+
+    public Assessment getByUserId(String userId) {
+        return comments.findByUser(userId);
+    }
 }
+
