@@ -60,6 +60,10 @@ public class UserService {
     public Optional<User> patch(String id, List<Map<String, Object>> updates) throws JsonPatchException {
         Optional<User> user = users.findById(id);
         User u = utils.patch(user.get(), updates);
+
+        u.setEmail(user.get().getEmail());
+        u.setBirthday((user.get().getBirthday()));
+
         return Optional.of(users.save(u));
     }
 
