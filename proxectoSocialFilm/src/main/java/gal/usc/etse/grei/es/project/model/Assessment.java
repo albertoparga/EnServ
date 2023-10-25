@@ -40,7 +40,7 @@ public class Assessment {
         return user;
     }
 
-    public Film getMovie() {
+    public Film getFilm() {
         return film;
     }
 
@@ -63,7 +63,7 @@ public class Assessment {
         return this;
     }
 
-    public Assessment setMovie(Film film) {
+    public Assessment setFilm(Film film) {
         this.film = film;
         return this;
     }
