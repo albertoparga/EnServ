@@ -37,14 +37,20 @@ public class CommentService {
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
-        Optional<Film> f = films.findById(filmId);
-        Film film = f.get();
-        Optional<User> u = users.findById(userId);
-        User user = u.get();
+        Example<Assessment> filter = Example.of(new Assessment(), matcher);
 
-        Example<Assessment> filter = Example.of(
-                new Assessment().setFilm(film).setUser(user), //NO FUNCIONA
-                matcher );
+        Optional<Film> f = films.findById(filmId);
+        if(f.isPresent()) {
+            Film film = f.get();
+            filter = Example.of(new Assessment().setFilm(film), matcher);
+        }
+
+        Optional<User> u = users.findById(userId);
+        if(u.isPresent()) {
+            User user = u.get();
+            filter = Example.of(new Assessment().setUser(user), matcher);
+        }
+
         Page <Assessment> result = comments.findAll(filter, request);
 
         if (result.isEmpty())
@@ -80,14 +86,6 @@ public class CommentService {
         Assessment c = utils.patch(comment.get(), updates);
 
         return Optional.of(comments.save(c));
-    }
-
-    public Assessment getByFilmId(String filmId) {
-        return comments.findByFilm(filmId);
-    }
-
-    public Assessment getByUserId(String userId) {
-        return comments.findByUser(userId);
     }
 }
 
