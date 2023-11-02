@@ -32,6 +32,7 @@ public class UserController {
     )
     ResponseEntity<Page<User>> getUsers(
             @RequestParam(name = "name", defaultValue="") String name,
+            @RequestParam(name = "email", defaultValue="") String email,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sort", defaultValue = "") List<String> sort
@@ -46,7 +47,7 @@ public class UserController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.of(users.getBy(page, size, Sort.by(criteria), name));
+        return ResponseEntity.of(users.getBy(page, size, Sort.by(criteria), name, email));
     }
 
     @GetMapping(

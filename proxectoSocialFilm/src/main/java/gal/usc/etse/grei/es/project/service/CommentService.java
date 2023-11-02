@@ -36,21 +36,18 @@ public class CommentService {
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-
-        Example<Assessment> filter = Example.of(new Assessment(), matcher);
+        Film film = new Film();
+        User user = new User();
 
         Optional<Film> f = films.findById(filmId);
-        if(f.isPresent()) {
-            Film film = f.get();
-            filter = Example.of(new Assessment().setFilm(film), matcher);
-        }
-
         Optional<User> u = users.findById(userId);
-        if(u.isPresent()) {
-            User user = u.get();
-            filter = Example.of(new Assessment().setUser(user), matcher);
-        }
 
+        if(f.isPresent()) { film = f.get(); }
+        if(u.isPresent()) { user = u.get(); }
+
+        Example<Assessment> filter = Example.of(
+                new Assessment().setUser(user).setFilm(film),
+                matcher );
         Page <Assessment> result = comments.findAll(filter, request);
 
         if (result.isEmpty())

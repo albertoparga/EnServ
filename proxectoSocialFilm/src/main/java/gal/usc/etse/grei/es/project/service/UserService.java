@@ -33,13 +33,13 @@ public class UserService {
         else return Optional.of(result);
     }
 
-    public Optional<Page<User>> getBy(int page, int size, Sort sort, String name) {
+    public Optional<Page<User>> getBy(int page, int size, Sort sort, String name, String email) {
         Pageable request = PageRequest.of(page, size, sort);
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
         Example<User> filter = Example.of(
-                new User().setName(name),
+                new User().setName(name).setEmail(email),
                 matcher );
         Page <User> result = users.findAll(filter, request);
 
