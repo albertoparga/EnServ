@@ -5,6 +5,9 @@ import gal.usc.etse.grei.es.project.model.User;
 import gal.usc.etse.grei.es.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,11 +19,13 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository users;
     private final PatchUtils utils;
+    private final MongoTemplate mongo;
 
     @Autowired
-    public UserService(UserRepository users, PatchUtils utils) {
+    public UserService(UserRepository users, PatchUtils utils, MongoTemplate mongo) {
         this.users = users;
         this.utils = utils;
+        this.mongo = mongo;
     }
 
     public Optional<Page<User>> get(int page, int size, Sort sort) {
@@ -33,15 +38,20 @@ public class UserService {
         else return Optional.of(result);
     }
 
-    public Optional<Page<User>> getBy(int page, int size, Sort sort, String name, String email) {
+    public Optional<Page<User>> getBy(int page, int size, Sort sort, String email, String name) {
         Pageable request = PageRequest.of(page, size, sort);
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-        Example<User> filter = Example.of(
-                new User().setName(name).setEmail(email),
-                matcher );
-        Page <User> result = users.findAll(filter, request);
+
+        List <User> usrs = users.findByEmail(email, name);
+
+        int start = page*size;
+        int end = Math.min((start+size), usrs.size());
+
+        List<User> usersOnPage = usrs.subList(start, end);
+
+        Page<User> result = new PageImpl<>(usersOnPage, request, usrs.size());
 
         if (result.isEmpty())
             return Optional.empty();

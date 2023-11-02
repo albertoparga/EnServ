@@ -31,23 +31,23 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Page<User>> getUsers(
-            @RequestParam(name = "name", defaultValue="") String name,
-            @RequestParam(name = "email", defaultValue="") String email,
+            @RequestParam(name = "name", defaultValue = "") String name,
+            @RequestParam(name = "email", defaultValue = "") String email,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sort", defaultValue = "") List<String> sort
     ) {
         List<Sort.Order> criteria = sort.stream().map(string -> {
-                    if (string.startsWith("+")) {
-                        return Sort.Order.asc(string.substring(1));
-                    } else if (string.startsWith("-")) {
+                    if (string.startsWith("<")) {
                         return Sort.Order.desc(string.substring(1));
+                    } else if (string.startsWith(">")) {
+                        return Sort.Order.asc(string.substring(1));
                     } else return null;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.of(users.getBy(page, size, Sort.by(criteria), name, email));
+        return ResponseEntity.of(users.getBy(page, size, Sort.by(criteria), email, name));
     }
 
     @GetMapping(
