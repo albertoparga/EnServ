@@ -40,18 +40,13 @@ public class UserService {
 
     public Optional<Page<User>> getBy(int page, int size, Sort sort, String email, String name) {
         Pageable request = PageRequest.of(page, size, sort);
-        ExampleMatcher matcher = ExampleMatcher.matching()
-                .withIgnoreCase()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
-        List <User> usrs = users.findByEmail(email, name);
+        Criteria criteria = Criteria.where("email").regex(email).and("name").regex(name);
+        Query query = Query.query(criteria).with(request);
+        query.fields().exclude("email").exclude("friends");
 
-        int start = page*size;
-        int end = Math.min((start+size), usrs.size());
-
-        List<User> usersOnPage = usrs.subList(start, end);
-
-        Page<User> result = new PageImpl<>(usersOnPage, request, usrs.size());
+        List <User> usrs = mongo.find(query,User.class);
+        Page<User> result = new PageImpl<>(usrs);
 
         if (result.isEmpty())
             return Optional.empty();
