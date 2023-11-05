@@ -9,6 +9,9 @@ import gal.usc.etse.grei.es.project.repository.FilmRepository;
 import gal.usc.etse.grei.es.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,35 +23,26 @@ public class CommentService {
     private final CommentRepository comments;
     private final FilmRepository films;
     private final UserRepository users;
+    private final MongoTemplate mongo;
 
     private final PatchUtils utils;
 
     @Autowired
-    public CommentService(CommentRepository comments, FilmRepository films, UserRepository users, PatchUtils utils) {
+    public CommentService(CommentRepository comments, FilmRepository films, UserRepository users, PatchUtils utils, MongoTemplate mongo) {
         this.comments = comments;
         this.films = films;
         this.users = users;
         this.utils = utils;
+        this.mongo = mongo;
     }
 
     public Optional<Page<Assessment>> getBy(int page, int size, Sort sort, String filmId, String userId) {
         Pageable request = PageRequest.of(page, size, sort);
-        ExampleMatcher matcher = ExampleMatcher.matching()
-                .withIgnoreCase()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-        Film film = new Film();
-        User user = new User();
+        Criteria criteria = Criteria.where("film.id").regex(filmId).and("user.email").regex(userId);
+        Query query = Query.query(criteria).with(request);
 
-        Optional<Film> f = films.findById(filmId);
-        Optional<User> u = users.findById(userId);
-
-        if(f.isPresent()) { film = f.get(); }
-        if(u.isPresent()) { user = u.get(); }
-
-        Example<Assessment> filter = Example.of(
-                new Assessment().setUser(user).setFilm(film),
-                matcher );
-        Page <Assessment> result = comments.findAll(filter, request);
+        List <Assessment> cmnts = mongo.find(query,Assessment.class);
+        Page<Assessment> result = new PageImpl<>(cmnts);
 
         if (result.isEmpty())
             return Optional.empty();

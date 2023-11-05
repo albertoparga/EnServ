@@ -9,9 +9,4 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 public interface CommentRepository extends MongoRepository<Assessment, String> {
-    @Query("{'film.id' :  ?0}")
-    Assessment findByFilm(String filmId);
-
-    @Query("{'user.id' :  ?0}")
-    Assessment findByUser(String userId);
 }
