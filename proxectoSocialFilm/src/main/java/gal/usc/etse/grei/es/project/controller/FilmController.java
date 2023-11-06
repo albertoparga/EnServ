@@ -1,5 +1,6 @@
 package gal.usc.etse.grei.es.project.controller;
 
+import com.github.fge.jsonpatch.JsonPatchException;
 import gal.usc.etse.grei.es.project.model.*;
 import gal.usc.etse.grei.es.project.repository.FilmRepository;
 import gal.usc.etse.grei.es.project.service.FilmService;
@@ -11,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -72,6 +71,11 @@ public class FilmController {
         Film film = new Film();
         film.setTitle(title);
         return films.create(film);
+    }
+
+    @PatchMapping(path = "{id}")
+    Optional<Film> patchFilm(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> film) throws JsonPatchException {
+        return films.patch(id, film);
     }
 
     @DeleteMapping(path = "{id}")
