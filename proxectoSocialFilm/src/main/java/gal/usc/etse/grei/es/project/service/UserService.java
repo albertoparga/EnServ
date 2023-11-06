@@ -101,7 +101,9 @@ public class UserService {
             User user = u.get();
             Optional<User> f = users.findById(friend);
             if (f.isPresent()) {
-                User f2 = f.get();
+                User f2 = new User();
+                f2.setEmail(f.get().getEmail());
+                f2.setName(f.get().getName());
                 user.getFriends().remove(f2);
             }
            users.save(user);
