@@ -9,6 +9,7 @@ import java.util.StringJoiner;
 public class Crew extends Person {
     private String job;
 
+
     public Crew() {
     }
 

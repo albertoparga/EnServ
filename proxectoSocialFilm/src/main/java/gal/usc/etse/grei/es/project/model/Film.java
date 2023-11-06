@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -13,6 +14,8 @@ import java.util.StringJoiner;
 public class Film {
     @Id
     private String id;
+
+    @NotEmpty(message = "El título es obligatorio para crear una nueva pelicula")
     private String title;
     private String overview;
     private String tagline;
