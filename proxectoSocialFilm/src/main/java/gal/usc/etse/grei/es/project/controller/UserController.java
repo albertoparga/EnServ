@@ -38,9 +38,9 @@ public class UserController {
             @RequestParam(name = "sort", defaultValue = "") List<String> sort
     ) {
         List<Sort.Order> criteria = sort.stream().map(string -> {
-                    if (string.startsWith("<")) {
+                    if (string.startsWith("-")) {
                         return Sort.Order.desc(string.substring(1));
-                    } else if (string.startsWith(">")) {
+                    } else if (string.startsWith("+")) {
                         return Sort.Order.asc(string.substring(1));
                     } else return null;
                 })
@@ -78,7 +78,7 @@ public class UserController {
         return users.addFriend(id, friend);
     }
 
-    @DeleteMapping(path = "{id}/friend/{friend}")
+    @DeleteMapping(path = "{id}/{friend}")
     void deleteFriend(@PathVariable("id") String id, @PathVariable("friend") String friend) {
         users.deleteFriend(id, friend);
     }

@@ -30,10 +30,10 @@ public class FilmController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Page<Film>> getBy(
-            @RequestParam(name = "keyword", defaultValue = "") String keyword,
-            @RequestParam(name = "genre", defaultValue = "") String genre,
+            @RequestParam(name = "keywords", defaultValue = "") String keyword,
+            @RequestParam(name = "genres", defaultValue = "") String genre,
             @RequestParam(name = "releaseDate", defaultValue = "") String releaseDate,
-            @RequestParam(name = "producer", defaultValue = "") String producer,
+            @RequestParam(name = "producers", defaultValue = "") String producer,
             @RequestParam(name = "crew", defaultValue = "") String crewe,
             @RequestParam(name = "cast", defaultValue = "") String caste,
             @RequestParam(name = "page", defaultValue = "0") int page,
