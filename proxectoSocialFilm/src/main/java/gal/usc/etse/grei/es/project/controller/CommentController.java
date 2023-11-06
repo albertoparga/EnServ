@@ -33,16 +33,16 @@ public class CommentController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Page<Assessment>> getBy(
-            @RequestParam(name = "filmId", defaultValue="") String filmId,
-            @RequestParam(name = "userId", defaultValue="") String userId,
+            @RequestParam(name = "film", defaultValue="") String filmId,
+            @RequestParam(name = "user", defaultValue="") String userId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sort", defaultValue = "") List<String> sort
     ) {
         List<Sort.Order> criteria = sort.stream().map(string -> {
-                    if (string.startsWith("+")) {
+                    if (string.startsWith(">")) {
                         return Sort.Order.asc(string.substring(1));
-                    } else if (string.startsWith("-")) {
+                    } else if (string.startsWith("<")) {
                         return Sort.Order.desc(string.substring(1));
                     } else return null;
                 })

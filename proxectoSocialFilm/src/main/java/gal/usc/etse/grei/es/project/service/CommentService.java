@@ -61,8 +61,12 @@ public class CommentService {
         Optional<User> u = users.findById(userId);
 
         if (f.isPresent() && u.isPresent()) {
-            Film film = f.get();
-            User user = u.get();
+            Film film = new Film();
+            film.setId(f.get().getId());
+            film.setTitle(f.get().getTitle());
+            User user = new User();
+            user.setEmail(u.get().getEmail());
+            user.setName(u.get().getName());
             com.setFilm(film);
             com.setUser(user);
 

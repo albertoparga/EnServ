@@ -83,11 +83,11 @@ public class UserService {
             Optional<User> f = users.findById(friend.getEmail());
             if(f.isPresent()) {
                 if (f.get().getName().equals(friend.getName())) {
-                    User f2 = f.get();
+                    User f2 = new User();
+                    f2.setEmail(f.get().getEmail());
+                    f2.setName(f.get().getName());
                     user.getFriends().add(f2);
                 }
-            } else {
-                   //LANZAR EXCEPCIÓN
             }
 
             return Optional.of(users.save(user));
