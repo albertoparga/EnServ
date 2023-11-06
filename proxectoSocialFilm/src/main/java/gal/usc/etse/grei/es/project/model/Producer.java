@@ -14,6 +14,8 @@ public class Producer {
     public Producer() {
     }
 
+
+
     public Producer(String name, String logo, String country) {
         this.name = name;
         this.logo = logo;

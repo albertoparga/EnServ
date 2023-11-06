@@ -8,7 +8,6 @@ import java.util.StringJoiner;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Cast extends Person {
     private String character;
-
     public Cast() {
     }
 
