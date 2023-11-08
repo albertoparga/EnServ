@@ -27,16 +27,37 @@ public class User {
     private Date birthday;
     private List<User> friends;
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    private String password;
+    private List<String> roles;
+
     public User() {
     }
 
-    public User(String email, String name, String country, String picture, Date birthday, List<User> friends) {
+    public User(String email, String name, String country, String picture, Date birthday, List<User> friends, String password, List<String> roles) {
         this.email = email;
         this.name = name;
         this.country = country;
         this.picture = picture;
         this.birthday = birthday;
         this.friends = friends;
+        this.password = password;
+        this.roles = roles;
     }
 
     public String getEmail() {

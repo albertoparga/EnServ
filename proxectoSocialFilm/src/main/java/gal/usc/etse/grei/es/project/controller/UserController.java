@@ -4,10 +4,12 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import gal.usc.etse.grei.es.project.model.User;
 import gal.usc.etse.grei.es.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -51,15 +53,16 @@ public class UserController {
     }
 
     @GetMapping(
-            path = "{id}",
+            path = "{email}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<User> getUser(@PathVariable("id") String id) {
-        return ResponseEntity.of(users.get(id));
+    @PreAuthorize("hasRole('ADMIN') or #email == principal or @userService.areFriends(#email, principal.username)")
+    public ResponseEntity<User> get(@PathVariable("email") String email) {
+        return ResponseEntity.of(users.get(email));
     }
 
     @PostMapping("")
-    User createUser(@RequestBody @Valid User user) {
+    Optional<User> createUser(@RequestBody @Valid User user) {
         return users.create(user);
     }
 

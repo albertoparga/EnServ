@@ -8,6 +8,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,12 +21,14 @@ public class UserService {
     private final UserRepository users;
     private final PatchUtils utils;
     private final MongoTemplate mongo;
+    private final PasswordEncoder encoder;
 
     @Autowired
-    public UserService(UserRepository users, PatchUtils utils, MongoTemplate mongo) {
+    public UserService(UserRepository users, PatchUtils utils, MongoTemplate mongo, PasswordEncoder encoder) {
         this.users = users;
         this.utils = utils;
         this.mongo = mongo;
+        this.encoder = encoder;
     }
 
     public Optional<Page<User>> get(int page, int size, Sort sort) {
@@ -59,8 +62,16 @@ public class UserService {
     }
     
     public void delete(String id) { users.deleteById(id); }
-    
-    public User create(User user) { return users.save(user); }
+
+    public Optional<User> create(User user){
+        if(!users.existsById(user.getEmail())) {
+            // Modificamos o contrasinal para gardalo codificado na base de datos
+            user.setPassword(encoder.encode(user.getPassword()));
+            return Optional.of(users.insert(user));
+        } else {
+            return Optional.empty();
+        }
+    }
 
     public Optional<User> patch(String id, List<Map<String, Object>> updates) throws JsonPatchException {
         Optional<User> user = users.findById(id);
@@ -109,4 +120,16 @@ public class UserService {
            users.save(user);
         }
     }
+
+    public Boolean areFriends(String email, String amigo) {
+        Optional<User> usuario = users.findById(email);
+        List<User> list = usuario.get().getFriends();
+        for (User u : list) {
+            if (u.getEmail().equals(amigo)) {
+                return true;
+            }
+        }
+        return false;
+     }
+
 }
