@@ -26,23 +26,6 @@ public class User {
     @NotNull(message = "El campo birthday es obligatorio")
     private Date birthday;
     private List<User> friends;
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
-
     private String password;
     private List<String> roles;
 
@@ -57,6 +40,22 @@ public class User {
         this.birthday = birthday;
         this.friends = friends;
         this.password = password;
+        this.roles = roles;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 

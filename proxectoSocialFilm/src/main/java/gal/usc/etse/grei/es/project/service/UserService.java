@@ -46,7 +46,7 @@ public class UserService {
 
         Criteria criteria = Criteria.where("email").regex(email).and("name").regex(name);
         Query query = Query.query(criteria).with(request);
-        query.fields().exclude("email").exclude("friends");
+        query.fields().exclude("email").exclude("friends").exclude("password").exclude("roles");
 
         List <User> usrs = mongo.find(query,User.class);
         Page<User> result = new PageImpl<>(usrs);
@@ -67,6 +67,9 @@ public class UserService {
         if(!users.existsById(user.getEmail())) {
             // Modificamos o contrasinal para gardalo codificado na base de datos
             user.setPassword(encoder.encode(user.getPassword()));
+            List<String> roles = new ArrayList<>();
+            roles.add("USER");
+            user.setRoles(roles);
             return Optional.of(users.insert(user));
         } else {
             return Optional.empty();
@@ -124,9 +127,11 @@ public class UserService {
     public Boolean areFriends(String email, String amigo) {
         Optional<User> usuario = users.findById(email);
         List<User> list = usuario.get().getFriends();
-        for (User u : list) {
-            if (u.getEmail().equals(amigo)) {
-                return true;
+        if(list!=null) {
+            for (User u : list) {
+                if (u.getEmail().equals(amigo)) {
+                    return true;
+                }
             }
         }
         return false;
