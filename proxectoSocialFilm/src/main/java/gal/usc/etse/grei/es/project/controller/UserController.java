@@ -80,13 +80,13 @@ public class UserController {
         return users.patch(id, user);
     }
 
-    @PostMapping(path = "{id}/friend")
+    @PostMapping(path = "{id}/friends")
     @PreAuthorize("#id == principal")
     Optional<User> addFriend(@PathVariable("id") String id, @RequestBody User friend) {
         return users.addFriend(id, friend);
     }
 
-    @DeleteMapping(path = "{id}/{friend}")
+    @DeleteMapping(path = "{id}/friends/{friend}")
     @PreAuthorize("#id == principal")
     void deleteFriend(@PathVariable("id") String id, @PathVariable("friend") String friend) {
         users.deleteFriend(id, friend);
