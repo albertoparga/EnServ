@@ -34,10 +34,8 @@ public class CommentController {
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    //@PreAuthorize("isAuthenticated()")
-    @PostAuthorize("((hasRole('ROLE_ADMIN') or #user==principal or " +
-            "@userService.areFriends(#user, principal)) and #user != '') " +
-            "or (isAuthenticated() and #film != '')")
+    @PostAuthorize("hasRole('ROLE_ADMIN') or #user==principal or " +
+            "@userService.areFriends(#user, principal) or isAuthenticated()")
     ResponseEntity<Page<Assessment>> getBy(
             @RequestParam(name = "film", defaultValue="") String film,
             @RequestParam(name = "user", defaultValue="") String user,
