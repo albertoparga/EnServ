@@ -68,7 +68,7 @@ public class FilmController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     Film createFilm(
             @RequestBody @Valid String title
     ) {
@@ -78,13 +78,13 @@ public class FilmController {
     }
 
     @PatchMapping(path = "{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     Optional<Film> patchFilm(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> film) throws JsonPatchException {
         return films.patch(id, film);
     }
 
     @DeleteMapping(path = "{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void delete(@PathVariable("id") String id) {
         films.delete(id);
     }

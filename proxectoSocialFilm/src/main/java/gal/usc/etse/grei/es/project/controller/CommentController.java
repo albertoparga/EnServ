@@ -60,7 +60,7 @@ public class CommentController {
     }
 
     @DeleteMapping(path = "{id}")
-    @PreAuthorize("hasRole('ADMIN') or #email == principal")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or #email == principal")
     public void deleteComment(@PathVariable("id") String id) {
         comments.delete(id);
     }
