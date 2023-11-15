@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,16 +54,19 @@ public class CommentController {
     }
 
     @PostMapping("{filmId}/{userId}")
+    @PreAuthorize("#email == principal")
     Assessment createComment(@PathVariable("filmId") String filmId, @PathVariable("userId") String userId, @RequestBody Assessment com) {
         return comments.create(filmId, userId, com);
     }
 
     @DeleteMapping(path = "{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or #email == principal")
     public void deleteComment(@PathVariable("id") String id) {
         comments.delete(id);
     }
 
     @PatchMapping(path = "{id}")
+    @PreAuthorize("#email == principal")
     Optional<Assessment> patchUser(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> user) throws JsonPatchException {
         return comments.patch(id, user);
     }

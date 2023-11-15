@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,6 +30,7 @@ public class FilmController {
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("#email == principal")
     ResponseEntity<Page<Film>> getBy(
             @RequestParam(name = "keywords", defaultValue = "") String keyword,
             @RequestParam(name = "genres", defaultValue = "") String genre,
@@ -60,11 +62,13 @@ public class FilmController {
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @PreAuthorize("#email == principal")
     ResponseEntity<Film> get(@PathVariable("id") String id) {
         return ResponseEntity.of(films.get(id));
     }
 
     @PostMapping()
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     Film createFilm(
             @RequestBody @Valid String title
     ) {
@@ -74,11 +78,13 @@ public class FilmController {
     }
 
     @PatchMapping(path = "{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     Optional<Film> patchFilm(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> film) throws JsonPatchException {
         return films.patch(id, film);
     }
 
     @DeleteMapping(path = "{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void delete(@PathVariable("id") String id) {
         films.delete(id);
     }
