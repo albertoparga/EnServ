@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,9 +34,13 @@ public class CommentController {
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    //@PreAuthorize("isAuthenticated()")
+    @PostAuthorize("((hasRole('ROLE_ADMIN') or #user==principal or " +
+            "@userService.areFriends(#user, principal)) and #user != '') " +
+            "or (isAuthenticated() and #film != '')")
     ResponseEntity<Page<Assessment>> getBy(
-            @RequestParam(name = "film", defaultValue="") String filmId,
-            @RequestParam(name = "user", defaultValue="") String userId,
+            @RequestParam(name = "film", defaultValue="") String film,
+            @RequestParam(name = "user", defaultValue="") String user,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @RequestParam(name = "sort", defaultValue = "") List<String> sort
@@ -50,23 +55,24 @@ public class CommentController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.of(comments.getBy(page, size, Sort.by(criteria), filmId, userId));
+        return ResponseEntity.of(comments.getBy(page, size, Sort.by(criteria), film, user));
     }
 
+    //cambiar pathtodo en el body
     @PostMapping("{filmId}/{userId}")
-    @PreAuthorize("#email == principal")
+    @PreAuthorize("#userId == principal")
     Assessment createComment(@PathVariable("filmId") String filmId, @PathVariable("userId") String userId, @RequestBody Assessment com) {
         return comments.create(filmId, userId, com);
     }
 
     @DeleteMapping(path = "{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or #email == principal")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @commentService.commentUser(#id, principal)")
     public void deleteComment(@PathVariable("id") String id) {
         comments.delete(id);
     }
 
     @PatchMapping(path = "{id}")
-    @PreAuthorize("#email == principal")
+    @PreAuthorize("@commentService.commentUser(#id, principal)")
     Optional<Assessment> patchUser(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> user) throws JsonPatchException {
         return comments.patch(id, user);
     }

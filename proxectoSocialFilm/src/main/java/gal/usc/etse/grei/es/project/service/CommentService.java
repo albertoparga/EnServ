@@ -82,5 +82,16 @@ public class CommentService {
 
         return Optional.of(comments.save(c));
     }
+
+    public boolean commentUser(String id, String userId) {
+        Optional<Assessment> comment = comments.findById(id);
+        if(comment.isPresent()) {
+            Assessment c = comment.get();
+            if(c.getUser().getEmail().equals(userId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 

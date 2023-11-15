@@ -30,7 +30,7 @@ public class FilmController {
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("#email == principal")
+    @PreAuthorize("isAuthenticated()")
     ResponseEntity<Page<Film>> getBy(
             @RequestParam(name = "keywords", defaultValue = "") String keyword,
             @RequestParam(name = "genres", defaultValue = "") String genre,
@@ -62,7 +62,7 @@ public class FilmController {
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("#email == principal")
+    @PreAuthorize("isAuthenticated()")
     ResponseEntity<Film> get(@PathVariable("id") String id) {
         return ResponseEntity.of(films.get(id));
     }

@@ -68,7 +68,7 @@ public class UserService {
             // Modificamos o contrasinal para gardalo codificado na base de datos
             user.setPassword(encoder.encode(user.getPassword()));
             List<String> roles = new ArrayList<>();
-            roles.add("USER");
+            roles.add("ROLE_USER");
             user.setRoles(roles);
             return Optional.of(users.insert(user));
         } else {

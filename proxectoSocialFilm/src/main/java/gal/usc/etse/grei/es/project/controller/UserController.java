@@ -68,7 +68,7 @@ public class UserController {
         return users.create(user);
     }
 
-    @DeleteMapping(path = "id}")
+    @DeleteMapping(path = "{id}")
     @PreAuthorize("#id == principal")
     void deleteUser(@PathVariable("id") String id) {
         users.delete(id);
