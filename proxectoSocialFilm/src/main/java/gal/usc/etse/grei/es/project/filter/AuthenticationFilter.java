@@ -77,6 +77,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .claim("roles", authorities)
                 // Asinamos o token coa nosa clave secreta
                 .signWith(key);
+
         // Engadimos o token á resposta na cabeceira "Authentication"
         response.addHeader("Authentication", String.format("Bearer %s", tokenBuilder.compact()));
     }

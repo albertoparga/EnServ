@@ -67,7 +67,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         String user = claims.getSubject();
 
         // Obtemos o listado de roles do usuario
-        List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(claims.get("roles").toString());
+        List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(String.join(",",(List)claims.get("roles")));
 
         // Devolvemos o token interno de Spring, que será engadido no contexto.
         return user == null ? null : new UsernamePasswordAuthenticationToken(user, token, authorities);

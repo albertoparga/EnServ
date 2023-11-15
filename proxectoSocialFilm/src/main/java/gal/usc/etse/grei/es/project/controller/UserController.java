@@ -57,7 +57,7 @@ public class UserController {
             path = "{email}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @PreAuthorize("hasRole('ADMIN') or #email == principal or @userService.areFriends(#email, principal)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or #email == principal or @userService.areFriends(#email, principal)")
     public ResponseEntity<User> get(@PathVariable("email") String email) {
         return ResponseEntity.of(users.get(email));
     }
