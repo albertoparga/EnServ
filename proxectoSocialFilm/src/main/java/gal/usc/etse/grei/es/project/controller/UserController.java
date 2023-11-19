@@ -6,10 +6,19 @@ import gal.usc.etse.grei.es.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.LinkRelationProvider;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -23,17 +32,19 @@ import java.util.stream.Collectors;
 @RequestMapping("users")
 public class UserController {
     private final UserService users;
+    private final LinkRelationProvider relationProvider;
 
     @Autowired
-    public UserController(UserService users) {
+    public UserController(UserService users, LinkRelationProvider relationProvider) {
         this.users = users;
+        this.relationProvider = relationProvider;
     }
 
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
-    ResponseEntity<Page<User>> getUsers(
+    ResponseEntity<Page<User>> get(
             @RequestParam(name = "name", defaultValue = "") String name,
             @RequestParam(name = "email", defaultValue = "") String email,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -49,8 +60,42 @@ public class UserController {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        Optional<Page<User>> result = users.getBy(page, size, Sort.by(criteria), email, name);
 
-        return ResponseEntity.of(users.getBy(page, size, Sort.by(criteria), email, name));
+        if(result.isPresent()) {
+            Page<User> data = result.get();
+            Pageable metadata = data.getPageable();
+
+            Link self = linkTo(
+                    methodOn(UserController.class).get(name, email, page, size, sort)
+            ).withSelfRel();
+            Link first = linkTo(
+                    methodOn(UserController.class).get(name, email, metadata.first().getPageNumber(), size, sort)
+            ).withRel(IanaLinkRelations.FIRST);
+            Link last = linkTo(
+                    methodOn(UserController.class).get(name, email, data.getTotalPages() - 1, size, sort)
+            ).withRel(IanaLinkRelations.LAST);
+            Link next = linkTo(
+                    methodOn(UserController.class).get(name, email, metadata.next().getPageNumber(), size, sort)
+            ).withRel(IanaLinkRelations.NEXT);
+            Link previous = linkTo(
+                    methodOn(UserController.class).get(name, email, metadata.previousOrFirst().getPageNumber(), size, sort)
+            ).withRel(IanaLinkRelations.PREVIOUS);
+            Link one = linkTo(
+                    methodOn(UserController.class).get(null)
+            ).withRel(relationProvider.getItemResourceRelFor(User.class));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LINK, self.toString())
+                    .header(HttpHeaders.LINK, first.toString())
+                    .header(HttpHeaders.LINK, last.toString())
+                    .header(HttpHeaders.LINK, next.toString())
+                    .header(HttpHeaders.LINK, previous.toString())
+                    .header(HttpHeaders.LINK, one.toString())
+                    .body(result.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping(
@@ -59,25 +104,66 @@ public class UserController {
     )
     @PreAuthorize("hasRole('ROLE_ADMIN') or #email == principal or @userService.areFriends(#email, principal)")
     public ResponseEntity<User> get(@PathVariable("email") String email) {
-        return ResponseEntity.of(users.get(email));
+        Optional<User> user = users.get(email);
+
+        if(user.isPresent()) {
+            Link self = linkTo(methodOn(UserController.class).get(email)).withSelfRel();
+            Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LINK, self.toString())
+                    .header(HttpHeaders.LINK, all.toString())
+                    .body(user.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping("")
     @PreAuthorize("permitAll()")
-    Optional<User> createUser(@RequestBody @Valid User user) {
-        return users.create(user);
+    public ResponseEntity<User> createUser(@RequestBody @Valid User u) {
+        users.create(u);
+        Optional<User> user = users.get(u.getEmail());
+
+        if(user.isPresent()) {
+            Link self = linkTo(methodOn(UserController.class).get(u.getEmail())).withSelfRel();
+            Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LINK, self.toString())
+                    .header(HttpHeaders.LINK, all.toString())
+                    .body(user.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping(path = "{id}")
     @PreAuthorize("#id == principal")
-    void deleteUser(@PathVariable("id") String id) {
+    public ResponseEntity<User> deleteUser(@PathVariable("id") String id) {
         users.delete(id);
+
+        Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.LINK, all.toString())
+                .body(null);
     }
 
     @PatchMapping(path = "{id}")
     @PreAuthorize("#id == principal")
-    Optional<User> patchUser(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> user) throws JsonPatchException {
-        return users.patch(id, user);
+    public ResponseEntity<User> patchUser(@PathVariable("id") String email, @RequestBody List<Map<String, Object>> u) throws JsonPatchException {
+        users.patch(email, u);
+        Optional<User> user = users.get(email);
+
+        if(user.isPresent()) {
+            Link self = linkTo(methodOn(UserController.class).get(email)).withSelfRel();
+            Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LINK, self.toString())
+                    .header(HttpHeaders.LINK, all.toString())
+                    .body(user.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping(path = "{id}/friends")
