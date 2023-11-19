@@ -139,13 +139,18 @@ public class UserController {
     @DeleteMapping(path = "{id}")
     @PreAuthorize("#id == principal")
     public ResponseEntity<User> deleteUser(@PathVariable("id") String id) {
-        users.delete(id);
+        Optional<User> user = users.get(id);
 
-        Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+        if(user.isPresent()) {
+            users.delete(id);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.LINK, all.toString())
-                .body(null);
+            Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LINK, all.toString())
+                    .body(null);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PatchMapping(path = "{id}")
