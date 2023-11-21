@@ -2,6 +2,7 @@ package gal.usc.etse.grei.es.project.controller;
 
 import com.github.fge.jsonpatch.JsonPatchException;
 import gal.usc.etse.grei.es.project.model.Film;
+import gal.usc.etse.grei.es.project.service.CommentService;
 import gal.usc.etse.grei.es.project.service.FilmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,10 +30,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 @RequestMapping("films")
 public class FilmController {
     private final FilmService films;
+    private final CommentService comments;
     private final LinkRelationProvider relationProvider;
     @Autowired
-    public FilmController(FilmService films, LinkRelationProvider relationProvider ) {
+    public FilmController(FilmService films, CommentService comments, LinkRelationProvider relationProvider ) {
         this.films = films;
+        this.comments = comments;
         this.relationProvider = relationProvider;
     }
 
@@ -94,7 +97,6 @@ public class FilmController {
                     .header(HttpHeaders.LINK, one.toString())
                     .body(response.get());
         }
-        // Añadir enlaces HATEOAS a la respuesta
 
         return ResponseEntity.notFound().build();
     }
@@ -115,7 +117,6 @@ public class FilmController {
                     .header(HttpHeaders.LINK, all.toString())
                     .body(film.get());
         }
-        // Añadir enlaces HATEOAS a la respuesta
 
         return ResponseEntity.notFound().build();
     }
@@ -137,7 +138,6 @@ public class FilmController {
                     .header(HttpHeaders.LINK, all.toString())
                     .body(createdFilm.get());
         }
-        // Añadir enlaces HATEOAS a la respuesta
 
         return ResponseEntity.notFound().build();
 
@@ -169,6 +169,8 @@ public class FilmController {
 
         if(film.isPresent()) {
             films.delete(id);
+            comments.deleteCommentsF(id);
+
             Link all = linkTo(FilmController.class).withRel(relationProvider.getCollectionResourceRelFor(Film.class));
             return ResponseEntity.ok()
                     .header(HttpHeaders.LINK, all.toString())

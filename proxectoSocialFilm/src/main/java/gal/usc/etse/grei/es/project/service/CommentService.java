@@ -99,5 +99,17 @@ public class CommentService {
         }
         return false;
     }
+
+    public void deleteCommentsU(String userId) {
+        Criteria criteria = Criteria.where("user.email").regex(userId);
+        Query query = Query.query(criteria);
+        mongo.remove(query, Assessment.class);
+    }
+
+    public void deleteCommentsF(String filmId) {
+        Criteria criteria = Criteria.where("film.id").regex(filmId);
+        Query query = Query.query(criteria);
+        mongo.remove(query, Assessment.class);
+    }
 }
 

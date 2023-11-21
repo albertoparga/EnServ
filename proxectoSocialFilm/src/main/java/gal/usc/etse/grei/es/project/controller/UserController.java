@@ -2,6 +2,7 @@ package gal.usc.etse.grei.es.project.controller;
 
 import com.github.fge.jsonpatch.JsonPatchException;
 import gal.usc.etse.grei.es.project.model.User;
+import gal.usc.etse.grei.es.project.service.CommentService;
 import gal.usc.etse.grei.es.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,11 +33,13 @@ import java.util.stream.Collectors;
 @RequestMapping("users")
 public class UserController {
     private final UserService users;
+    private final CommentService comments;
     private final LinkRelationProvider relationProvider;
 
     @Autowired
-    public UserController(UserService users, LinkRelationProvider relationProvider) {
+    public UserController(UserService users, CommentService comments, LinkRelationProvider relationProvider) {
         this.users = users;
+        this.comments = comments;
         this.relationProvider = relationProvider;
     }
 
@@ -142,6 +145,7 @@ public class UserController {
 
         if(user.isPresent()) {
             users.delete(id);
+            comments.deleteCommentsU(id);
 
             Link all = linkTo(UserController.class).withRel(relationProvider.getCollectionResourceRelFor(User.class));
 
@@ -172,14 +176,28 @@ public class UserController {
 
     @PostMapping(path = "{id}/friends")
     @PreAuthorize("#id == principal")
-    Optional<User> addFriend(@PathVariable("id") String id, @RequestBody User friend) {
-        return users.addFriend(id, friend);
+    public ResponseEntity<User> addFriend(@PathVariable("id") String id, @RequestBody User friend) {
+        Optional<User> f = users.get(friend.getEmail());
+
+        if(f.isPresent()) {
+            users.addFriend(id, friend);
+
+            return ResponseEntity.ok()
+                    .body(null);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping(path = "{id}/friends/{friend}")
     @PreAuthorize("#id == principal")
-    void deleteFriend(@PathVariable("id") String id, @PathVariable("friend") String friend) {
-        users.deleteFriend(id, friend);
+    public ResponseEntity<User> deleteFriend(@PathVariable("id") String id, @PathVariable("friend") String friend) {
+        if(users.areFriends(id, friend)) {
+            users.deleteFriend(id, friend);
+
+            return ResponseEntity.ok()
+                    .body(null);
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }

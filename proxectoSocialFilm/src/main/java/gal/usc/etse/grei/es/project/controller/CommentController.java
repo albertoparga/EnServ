@@ -92,15 +92,17 @@ public class CommentController {
                     .header(HttpHeaders.LINK, previous.toString())
                     .body(response.get());
         }
-        // Añadir enlaces HATEOAS a la respuesta
 
         return ResponseEntity.notFound().build();
     }
 
     //cambiar pathtodo en el body
-    @PostMapping("{filmId}/{userId}")
-    @PreAuthorize("#userId == principal")
-    ResponseEntity<Assessment> createComment(@PathVariable("filmId") String filmId, @PathVariable("userId") String userId, @RequestBody Assessment com) {
+    @PostMapping("")
+    @PreAuthorize("#com.user.email == principal")
+    ResponseEntity<Assessment> createComment(@RequestBody Assessment com) {
+        String userId= com.getUser().getEmail();
+        String filmId= com.getFilm().getId();
+
         Optional<Assessment> comment = Optional.of(comments.create(filmId, userId, com));
         String user = "";
         List<String> sort = new ArrayList<>();
@@ -115,7 +117,6 @@ public class CommentController {
                 .header(HttpHeaders.LINK, filmComments.toString())
                 .body(comment.get());
     }
-    // Añadir enlaces HATEOAS a la respuesta
 
         return ResponseEntity.notFound().build();
     }
@@ -143,7 +144,6 @@ public class CommentController {
                     .header(HttpHeaders.LINK, userComments.toString())
                     .body(null);
         }
-        // Añadir enlaces HATEOAS a la respuesta
 
         return ResponseEntity.notFound().build();
     }
