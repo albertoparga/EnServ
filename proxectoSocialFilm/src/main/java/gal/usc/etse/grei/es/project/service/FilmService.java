@@ -46,29 +46,43 @@ public class FilmService {
     }
 
     public Optional<Page<Film>> getBy(int page, int size, Sort sort, String keyword, String genre, String fecha, String producer, String crew, String cast) {
-        Pageable request = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         Criteria criteria;
-        if(!fecha.equals("")){
+        if (!fecha.equals("")) {
             String[] fechadef = fecha.split("/");
-             criteria = Criteria.where("keywords").regex(keyword).and("genres").regex(genre)
-                    .and("releaseDate.day").is(Integer.valueOf(fechadef[0])).and("releaseDate.month").is(Integer.valueOf(fechadef[1])).and("releaseDate.year").is(Integer.valueOf(fechadef[2]))
-                    .and("producers.name").regex(producer).and("crew.name").regex(crew).and("cast.name").regex(cast);
-        }else{
             criteria = Criteria.where("keywords").regex(keyword).and("genres").regex(genre)
-                    .and("producers.name").regex(producer).and("crew.name").regex(crew).and("cast.name").regex(cast);
+                    .and("releaseDate.day").is(Integer.valueOf(fechadef[0]))
+                    .and("releaseDate.month").is(Integer.valueOf(fechadef[1]))
+                    .and("releaseDate.year").is(Integer.valueOf(fechadef[2]))
+                    .and("producers.name").regex(producer)
+                    .and("crew.name").regex(crew)
+                    .and("cast.name").regex(cast);
+        } else {
+            criteria = Criteria.where("keywords").regex(keyword)
+                    .and("genres").regex(genre)
+                    .and("producers.name").regex(producer)
+                    .and("crew.name").regex(crew)
+                    .and("cast.name").regex(cast);
         }
-        Query query = Query.query(criteria).with(request);
+        Query query = Query.query(criteria);
+
+        long count = mongo.count(query, Film.class); // Obtén el número total de elementos que coinciden con el criterio
+
+        query.with(pageable);
+
         query.fields().exclude("tagline").exclude("keywords")
                 .exclude("producers").exclude("cast").exclude("crew")
                 .exclude("budget").exclude("status").exclude("_class");
-        List <Film> film = mongo.find(query,Film.class);
-        Page<Film> result = new PageImpl<>(film);
 
-        if (result.isEmpty())
+        List<Film> films = mongo.find(query, Film.class);
+        Page<Film> result = new PageImpl<>(films, pageable, count);
+
+        if (result.isEmpty()) {
             return Optional.empty();
-
-        else return Optional.of(result);
+        } else {
+            return Optional.of(result);
+        }
     }
 
     public Optional<Film> get(String id) {

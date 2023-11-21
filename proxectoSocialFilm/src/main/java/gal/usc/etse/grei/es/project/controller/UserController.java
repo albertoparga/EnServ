@@ -66,37 +66,33 @@ public class UserController {
             Page<User> data = result.get();
             Pageable metadata = data.getPageable();
 
-            if (!metadata.isPaged()) {
-                return ResponseEntity.ok().body(result.get());
-            } else {
-                Link self = linkTo(
-                        methodOn(UserController.class).get(name, email, page, size, sort)
-                ).withSelfRel();
-                Link first = linkTo(
-                        methodOn(UserController.class).get(name, email, metadata.first().getPageNumber(), size, sort)
-                ).withRel(IanaLinkRelations.FIRST);
-                Link last = linkTo(
-                        methodOn(UserController.class).get(name, email, data.getTotalPages() - 1, size, sort)
-                ).withRel(IanaLinkRelations.LAST);
-                Link next = linkTo(
-                        methodOn(UserController.class).get(name, email, metadata.next().getPageNumber(), size, sort)
-                ).withRel(IanaLinkRelations.NEXT);
-                Link previous = linkTo(
-                        methodOn(UserController.class).get(name, email, metadata.previousOrFirst().getPageNumber(), size, sort)
-                ).withRel(IanaLinkRelations.PREVIOUS);
-                Link one = linkTo(
-                        methodOn(UserController.class).get(null)
-                ).withRel(relationProvider.getItemResourceRelFor(User.class));
+            Link self = linkTo(
+                    methodOn(UserController.class).get(name, email, page, size, sort)
+            ).withSelfRel();
+            Link first = linkTo(
+                    methodOn(UserController.class).get(name, email, metadata.first().getPageNumber(), size, sort)
+            ).withRel(IanaLinkRelations.FIRST);
+            Link last = linkTo(
+                    methodOn(UserController.class).get(name, email, data.getTotalPages() - 1, size, sort)
+            ).withRel(IanaLinkRelations.LAST);
+            Link next = linkTo(
+                    methodOn(UserController.class).get(name, email, metadata.next().getPageNumber(), size, sort)
+            ).withRel(IanaLinkRelations.NEXT);
+            Link previous = linkTo(
+                    methodOn(UserController.class).get(name, email, metadata.previousOrFirst().getPageNumber(), size, sort)
+            ).withRel(IanaLinkRelations.PREVIOUS);
+            Link one = linkTo(
+                    methodOn(UserController.class).get(null)
+            ).withRel(relationProvider.getItemResourceRelFor(User.class));
 
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.LINK, self.toString())
-                        .header(HttpHeaders.LINK, first.toString())
-                        .header(HttpHeaders.LINK, last.toString())
-                        .header(HttpHeaders.LINK, next.toString())
-                        .header(HttpHeaders.LINK, previous.toString())
-                        .header(HttpHeaders.LINK, one.toString())
-                        .body(result.get());
-            }
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LINK, self.toString())
+                    .header(HttpHeaders.LINK, first.toString())
+                    .header(HttpHeaders.LINK, last.toString())
+                    .header(HttpHeaders.LINK, next.toString())
+                    .header(HttpHeaders.LINK, previous.toString())
+                    .header(HttpHeaders.LINK, one.toString())
+                    .body(result.get());
         }
 
         return ResponseEntity.notFound().build();

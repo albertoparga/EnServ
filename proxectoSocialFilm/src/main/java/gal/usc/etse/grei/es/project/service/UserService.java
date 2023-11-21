@@ -42,19 +42,24 @@ public class UserService {
     }
 
     public Optional<Page<User>> getBy(int page, int size, Sort sort, String email, String name) {
-        Pageable request = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         Criteria criteria = Criteria.where("email").regex(email).and("name").regex(name);
-        Query query = Query.query(criteria).with(request);
+        Query query = Query.query(criteria);
         query.fields().exclude("email").exclude("friends").exclude("password").exclude("roles");
 
-        List <User> usrs = mongo.find(query,User.class);
-        Page<User> result = new PageImpl<>(usrs);
+        long count = mongo.count(query, User.class); // Obtén el número total de elementos que coinciden con el criterio
 
-        if (result.isEmpty())
+        query.with(pageable);
+
+        List<User> users = mongo.find(query, User.class);
+        Page<User> result = new PageImpl<>(users, pageable, count);
+
+        if (result.isEmpty()) {
             return Optional.empty();
-
-        else return Optional.of(result);
+        } else {
+            return Optional.of(result);
+        }
     }
 
     public Optional<User> get(String id) {

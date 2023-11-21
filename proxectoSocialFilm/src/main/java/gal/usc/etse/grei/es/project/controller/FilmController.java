@@ -45,7 +45,7 @@ public class FilmController {
             @RequestParam(name = "genres", defaultValue = "") String genre,
             @RequestParam(name = "releaseDate", defaultValue = "") String releaseDate,
             @RequestParam(name = "producers", defaultValue = "") String producer,
-            @RequestParam(name = "crew", defaultValue = "") String crewe,
+            @RequestParam(name = "crew", defaultValue = "") String crew,
             @RequestParam(name = "cast", defaultValue = "") String caste,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
@@ -63,23 +63,23 @@ public class FilmController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        Optional<Page<Film>> response = films.getBy(page, size, Sort.by(criteria), keyword, genre, releaseDate, producer, crewe, caste);
+        Optional<Page<Film>> response = films.getBy(page, size, Sort.by(criteria), keyword, genre, releaseDate, producer, crew, caste);
 
         if(response.isPresent()) {
             Page<Film> data = response.get();
             Pageable metadata = data.getPageable();
-            Link self = linkTo(methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crewe, caste, page, size, sort)).withSelfRel();
+            Link self = linkTo(methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crew, caste, page, size, sort)).withSelfRel();
             Link first = linkTo(
-                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crewe, caste,metadata.first().getPageNumber(), size, sort)
+                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crew, caste,metadata.first().getPageNumber(), size, sort)
             ).withRel(IanaLinkRelations.FIRST);
             Link last = linkTo(
-                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crewe, caste, data.getTotalPages() - 1, size, sort)
+                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crew, caste, data.getTotalPages() - 1, size, sort)
             ).withRel(IanaLinkRelations.LAST);
             Link next = linkTo(
-                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crewe, caste, metadata.next().getPageNumber(), size, sort)
+                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crew, caste, metadata.next().getPageNumber(), size, sort)
             ).withRel(IanaLinkRelations.NEXT);
             Link previous = linkTo(
-                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crewe, caste, metadata.previousOrFirst().getPageNumber(), size, sort)
+                    methodOn(FilmController.class).getBy(keyword, genre, releaseDate, producer, crew, caste, metadata.previousOrFirst().getPageNumber(), size, sort)
             ).withRel(IanaLinkRelations.PREVIOUS);
 
             Link one = linkTo(
