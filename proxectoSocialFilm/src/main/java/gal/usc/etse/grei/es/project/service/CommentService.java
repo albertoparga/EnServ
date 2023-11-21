@@ -37,17 +37,23 @@ public class CommentService {
     }
 
     public Optional<Page<Assessment>> getBy(int page, int size, Sort sort, String filmId, String userId) {
-        Pageable request = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Criteria criteria = Criteria.where("film.id").regex(filmId).and("user.email").regex(userId);
-        Query query = Query.query(criteria).with(request);
+        Query query = Query.query(criteria);
 
-        List <Assessment> cmnts = mongo.find(query,Assessment.class);
-        Page<Assessment> result = new PageImpl<>(cmnts);
+        long count = mongo.count(query, Assessment.class); // Obtén el número total de elementos que coinciden con el criterio
 
-        if (result.isEmpty())
+        query.with(pageable);
+
+        List<Assessment> comments = mongo.find(query, Assessment.class);
+        Page<Assessment> result = new PageImpl<>(comments, pageable, count);
+
+        if (result.isEmpty()) {
             return Optional.empty();
-
-        else return Optional.of(result);
+        } else {
+            return Optional.of(result);
+        }
     }
 
     public Optional<Assessment> get(String id) {

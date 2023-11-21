@@ -63,7 +63,8 @@ public class CommentController {
             Page<Assessment> data = response.get();
             Pageable metadata = data.getPageable();
             Link busqueda;
-            if(user.equals("")){
+
+            if(!user.equals("")){
                 busqueda = linkTo(methodOn(UserController.class).get(user)).withSelfRel();
             }else{
                 busqueda = linkTo(methodOn(FilmController.class).get(film)).withSelfRel();
@@ -149,28 +150,25 @@ public class CommentController {
 
     @PatchMapping(path = "{id}")
     @PreAuthorize("@commentService.commentUser(#id, principal)")
-    ResponseEntity<Assessment> patchUser(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> user) throws JsonPatchException {
-        Optional<Assessment> comment = comments.patch(id, user);
-        String u = "";
-        String film = "";
-        List<String> sort = new ArrayList<>();
-        if(comment.isPresent()){
-            Link self = linkTo(methodOn(CommentController.class).get(comment.get().getId())).withSelfRel();
-            Link filmComments = linkTo(
-                    methodOn(CommentController.class).getBy(comment.get().getFilm().getId(), u, 0, 20, sort)
-            ).withRel("FilmComments");
-            Link userComments = linkTo(
-                    methodOn(CommentController.class).getBy(film, comment.get().getUser().getEmail(), 0, 20, sort)
-            ).withRel("UserComments");
+    ResponseEntity<Assessment> patchUser(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> c) throws JsonPatchException {
+        comments.patch(id, c);
+        Optional<Assessment> comment = comments.get(id);
 
+        List sort = new ArrayList<>();
+        sort.add("");
+
+        if(comment.isPresent()) {
+            Link self = linkTo(methodOn(CommentController.class).get(id)).withSelfRel();
+            Link fComments = linkTo(methodOn(CommentController.class).getBy(comment.get().getFilm().getId(), "", 0, 20, sort))
+                    .withRel("Film Comments");
+            Link uComments = linkTo(methodOn(CommentController.class).getBy("", comment.get().getUser().getEmail(), 0, 20, sort))
+                    .withRel("User Comments");
             return ResponseEntity.ok()
                     .header(HttpHeaders.LINK, self.toString())
-                    .header(HttpHeaders.LINK, filmComments.toString())
-                    .header(HttpHeaders.LINK, userComments.toString())
+                    .header(HttpHeaders.LINK, fComments.toString())
+                    .header(HttpHeaders.LINK, uComments.toString())
                     .body(comment.get());
         }
-        // Añadir enlaces HATEOAS a la respuesta
-
         return ResponseEntity.notFound().build();
     }
 
@@ -179,15 +177,17 @@ public class CommentController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
-    Optional<Assessment> get(@PathVariable("id") String id) {
-        Optional<Assessment> comment = comments.get(id);
+    public ResponseEntity<Assessment> get(@PathVariable("email") String email) {
+        Optional<Assessment> comment = comments.get(email);
+
         if(comment.isPresent()) {
-           return comment;
+            Link self = linkTo(methodOn(UserController.class).get(email)).withSelfRel();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.LINK, self.toString())
+                    .body(comment.get());
         }
-        // Añadir enlaces HATEOAS a la respuesta
-
-        return null;
+        return ResponseEntity.notFound().build();
     }
-
 }
 

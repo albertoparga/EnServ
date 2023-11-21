@@ -150,7 +150,7 @@ public class FilmController {
 
         // Añadir enlaces HATEOAS al recurso modificado (si existe)
         if(patchedFilm.isPresent()) {
-            Link self = linkTo(methodOn(FilmController.class).patchFilm(id, film)).withSelfRel();
+            Link self = linkTo(methodOn(FilmController.class).get(id)).withSelfRel();
             Link all = linkTo(FilmController.class).withRel(relationProvider.getCollectionResourceRelFor(Film.class));
 
             return ResponseEntity.ok()
