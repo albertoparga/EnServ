@@ -3,18 +3,25 @@ package gal.usc.etse.grei.es.project.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Objects;
 import java.util.StringJoiner;
 
 @Document(collection = "comments")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(
+        name = "Assesment",
+        description = "A complete assesment representation"
+)
 public class Assessment {
     @Id
     private String id;
+    @Schema(example = "7")
     private Integer rating;
     private User user;
     private Film film;
+    @Schema(example = "Muy buena")
     private String comment;
 
     public Assessment() {
