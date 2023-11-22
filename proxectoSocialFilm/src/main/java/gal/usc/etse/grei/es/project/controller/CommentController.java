@@ -319,7 +319,7 @@ public class CommentController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found",
+                    description = "User not foun",
                     content = @Content
             ),
             @ApiResponse(
