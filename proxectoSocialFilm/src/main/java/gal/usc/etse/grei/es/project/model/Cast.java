@@ -1,13 +1,40 @@
 package gal.usc.etse.grei.es.project.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Objects;
 import java.util.StringJoiner;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Cast extends Person {
+    @Schema(example = "Tommy Shelby")
     private String character;
+    @Schema(example = "Cillian Murphy")
+    private String name;
+
+    @Schema(example = "picture")
+    private String picture;
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getPicture() {
+        return picture;
+    }
+
+    @Override
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
     public Cast() {
     }
 

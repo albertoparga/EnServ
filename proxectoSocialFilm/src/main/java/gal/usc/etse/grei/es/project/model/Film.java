@@ -1,6 +1,7 @@
 package gal.usc.etse.grei.es.project.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,25 +12,36 @@ import java.util.StringJoiner;
 
 @Document(collection = "films")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(
+        name = "Film",
+        description = "A complete film representation"
+)
 public class Film {
     @Id
     private String id;
 
     @NotEmpty(message = "El título es obligatorio para crear una nueva pelicula")
+    @Schema(required = true, example = "La Dama y la Bestia")
     private String title;
+    @Schema(example = "Pelicula de drama")
     private String overview;
+    @Schema(example = "¿Por qué estamos aqui?")
     private String tagline;
     private Collection collection;
     private List<String> genres;
+    @Schema(example = "21/09/2023")
     private Date releaseDate;
     private List<String> keywords;
     private List<Producer> producers;
     private List<Crew> crew;
     private List<Cast> cast;
     private List<Resource> resources;
+    @Schema(example = "10000")
     private Long budget;
     private Status status;
+    @Schema(example = "23:09")
     private Integer runtime;
+    @Schema(example = "13.000.000")
     private Long revenue;
 
     public Film() {
