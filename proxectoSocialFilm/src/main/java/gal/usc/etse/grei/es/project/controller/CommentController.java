@@ -95,7 +95,7 @@ public class CommentController {
 
         return ResponseEntity.notFound().build();
     }
-    
+
     @PostMapping("")
     @PreAuthorize("#com.user.email == principal")
     ResponseEntity<Assessment> createComment(@RequestBody Assessment com) {
