@@ -4,6 +4,14 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import gal.usc.etse.grei.es.project.model.Film;
 import gal.usc.etse.grei.es.project.service.CommentService;
 import gal.usc.etse.grei.es.project.service.FilmService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +36,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 @RequestMapping("films")
+@Tag(name = "Films API", description = "Films related operations")
+@SecurityRequirement(name = "JWT")
 public class FilmController {
     private final FilmService films;
     private final CommentService comments;
@@ -43,6 +53,37 @@ public class FilmController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
+    @Operation(
+            operationId = "getFilmsBy",
+            summary = "Get all films details or one film by some filter",
+            description = "Get the details for all the films or for one or more films filtering by keyword, genre, releaseDate, producer, crew or cast. To see film details " +
+                    "you must be logged."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The film or films details",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Film.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Films not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Page<Film>> getBy(
             @RequestParam(name = "keywords", defaultValue = "") String keyword,
             @RequestParam(name = "genres", defaultValue = "") String genre,
@@ -106,6 +147,37 @@ public class FilmController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
+    @Operation(
+            operationId = "getOneFilmById",
+            summary = "Get film by id",
+            description = "Get the details for one film filtering by his id." +
+                    "You must be logged."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The film",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Film.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Film not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Film> get(@PathVariable("id") String id) {
         Optional<Film> film = films.get(id);
         if(film.isPresent()) {
@@ -123,6 +195,37 @@ public class FilmController {
 
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(
+            operationId = "createFilm",
+            summary = "Create a film",
+            description = "Create a film specifying his title." +
+                    "You must be an ADMIN."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Film was created",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Film.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Film Id already exits",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Film> createFilm(@RequestBody @Valid String title) {
         Film film = new Film();
         film.setTitle(title);
@@ -145,6 +248,37 @@ public class FilmController {
 
     @PatchMapping(path = "{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(
+            operationId = "ModifyFilmById",
+            summary = "Modify a film",
+            description = "Modify a film by his id." +
+                    "You must be an ADMIN."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The film was modified successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Film.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Film not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Film> patchFilm(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> film) throws JsonPatchException {
         Optional<Film> patchedFilm = films.patch(id, film);
 
@@ -164,6 +298,34 @@ public class FilmController {
 
     @DeleteMapping(path = "{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(
+            operationId = "DeleteFilmById",
+            summary = "Delete a film",
+            description = "Delete film by his id." +
+                    "You must be an ADMIN."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The film was deleted",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Film not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<Film> delete(@PathVariable("id") String id) {
         Optional<Film> film = films.get(id);
 

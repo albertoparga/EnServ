@@ -6,6 +6,11 @@ import gal.usc.etse.grei.es.project.model.Film;
 import gal.usc.etse.grei.es.project.model.User;
 import gal.usc.etse.grei.es.project.service.CommentService;
 import gal.usc.etse.grei.es.project.service.FilmService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +45,37 @@ public class CommentController {
     )
     @PreAuthorize("(!#film.equals('') and hasRole('ROLE_USER')) or " +
             "(!#user.equals('') and (hasRole('ROLE_ADMIN') or #user == principal or @userService.areFriends(#user,principal)))")
+    @Operation(
+            operationId = "getCommentsBy",
+            summary = "Get all comments details or one comment detail  by some filter",
+            description = "Get the details for all the comments or for one comment filtering by user or film. " +
+                    "You must be logged for search by film and ADMIN or friend of the user to search by user."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The comment or comments details",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Assessment.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Comments not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Page<Assessment>> getBy(
             @RequestParam(name = "film", defaultValue="") String film,
             @RequestParam(name = "user", defaultValue="") String user,
@@ -98,6 +134,37 @@ public class CommentController {
 
     @PostMapping("")
     @PreAuthorize("#com.user.email == principal")
+    @Operation(
+            operationId = "CreateComment",
+            summary = "Create a new comment",
+            description = "Create a new comment for a film with your user. " +
+                    "You must be logged to comment a film."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The comment details",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Assessment.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Film not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Assessment> createComment(@RequestBody Assessment com) {
         String userId= com.getUser().getEmail();
         String filmId= com.getFilm().getId();
@@ -122,6 +189,34 @@ public class CommentController {
 
     @DeleteMapping(path = "{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or @commentService.commentUser(#id, principal)")
+    @Operation(
+            operationId = "DeleteCommentsById",
+            summary = "Delete a comment by his id",
+            description = "Delete one comment by his id. " +
+                    "You must be ADMIN or the comment creator to delete it."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The comment was deleted",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Comment not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<Assessment> deleteComment(@PathVariable("id") String id) {
         Optional<Assessment> comment = comments.get(id);
         String u = "";
@@ -149,6 +244,37 @@ public class CommentController {
 
     @PatchMapping(path = "{id}")
     @PreAuthorize("@commentService.commentUser(#id, principal)")
+    @Operation(
+            operationId = "ModifyCommentById",
+            summary = "Modify a comment",
+            description = "Modify a comment searching it by his id. " +
+                    "You must be the author of the comment to modify it."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The comment was modified",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Assessment.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Comment not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Assessment> patchUser(@PathVariable("id") String id, @RequestBody List<Map<String, Object>> c) throws JsonPatchException {
         comments.patch(id, c);
         Optional<Assessment> comment = comments.get(id);
