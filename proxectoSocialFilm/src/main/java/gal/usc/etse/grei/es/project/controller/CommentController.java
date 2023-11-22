@@ -95,8 +95,7 @@ public class CommentController {
 
         return ResponseEntity.notFound().build();
     }
-
-    //cambiar pathtodo en el body
+    
     @PostMapping("")
     @PreAuthorize("#com.user.email == principal")
     ResponseEntity<Assessment> createComment(@RequestBody Assessment com) {
