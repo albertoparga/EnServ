@@ -10,31 +10,6 @@ import java.util.StringJoiner;
 public class Cast extends Person {
     @Schema(example = "Tommy Shelby")
     private String character;
-    @Schema(example = "Cillian Murphy")
-    private String name;
-
-    @Schema(example = "picture")
-    private String picture;
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getPicture() {
-        return picture;
-    }
-
-    @Override
-    public void setPicture(String picture) {
-        this.picture = picture;
-    }
     public Cast() {
     }
 
