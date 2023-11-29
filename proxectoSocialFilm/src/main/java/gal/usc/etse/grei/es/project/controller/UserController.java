@@ -54,6 +54,37 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
+    @Operation(
+            operationId = "getAllUsers",
+            summary = "Get all users or find users details",
+            description = "Get the details for all users or for those that match the search " +
+                    "To see user details " +
+                    "you must be an authenticated user."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "List of users or user details",
+                    content = @Content(
+                            mediaType = "application/json"
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     ResponseEntity<Page<User>> get(
             @RequestParam(name = "name", defaultValue = "") String name,
             @RequestParam(name = "email", defaultValue = "") String email,
@@ -116,7 +147,7 @@ public class UserController {
     @Operation(
             operationId = "getOneUser",
             summary = "Get a single user details",
-            description = "Get the details for a given user. To see the user details " +
+            description = "Get the details for a given user. To see user details " +
                     "you must be the requested user, his friend, or have admin permissions."
     )
     @ApiResponses({
@@ -161,6 +192,37 @@ public class UserController {
 
     @PostMapping("")
     @PreAuthorize("permitAll()")
+    @Operation(
+            operationId = "postUser",
+            summary = "Create a single user",
+            description = "Create a user by stating, at least, email, name, birthday and password. " +
+                    "Every user has permission, even non authenticated ones. "
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The user was created",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User email already exists",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<User> createUser(@RequestBody @Valid User u) {
         Optional<User> user = users.create(u);
 
@@ -178,6 +240,35 @@ public class UserController {
 
     @DeleteMapping(path = "{id}")
     @PreAuthorize("#id == principal")
+    @Operation(
+            operationId = "deleteUser",
+            summary = "Delete an user",
+            description = "Delete an user given its email. " +
+                    "You must be the user."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The user was deleted",
+                    content = @Content(
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<User> deleteUser(@PathVariable("id") String id) {
         Optional<User> user = users.get(id);
 
@@ -196,6 +287,37 @@ public class UserController {
 
     @PatchMapping(path = "{email}")
     @PreAuthorize("#email == principal")
+    @Operation(
+            operationId = "pacthUser",
+            summary = "Change a single user details",
+            description = "Change the details for a given user. " +
+                    "You must be the user."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The user was patched",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<User> patchUser(@PathVariable("email") String email, @RequestBody List<Map<String, Object>> u) throws JsonPatchException {
         users.patch(email, u);
         Optional<User> user = users.get(email);
@@ -214,6 +336,35 @@ public class UserController {
 
     @PostMapping(path = "{id}/friends")
     @PreAuthorize("#id == principal")
+    @Operation(
+            operationId = "postUserFriend",
+            summary = "Add a friend to an user",
+            description = "Add a friend for a given user. You must especify friends email and name. " +
+                    "You must be the user."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The friend was added",
+                    content = @Content(
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<User> addFriend(@PathVariable("id") String id, @RequestBody User friend) {
         Optional<User> f = users.get(friend.getEmail());
 
@@ -228,6 +379,35 @@ public class UserController {
 
     @DeleteMapping(path = "{id}/friends/{friend}")
     @PreAuthorize("#id == principal")
+    @Operation(
+            operationId = "deleteUserFriend",
+            summary = "Delete a friend from an user",
+            description = "Delete a friend of a given user. You must especify the friends email" +
+                    "You must be the user."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The friend was deleted",
+                    content = @Content(
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<User> deleteFriend(@PathVariable("id") String id, @PathVariable("friend") String friend) {
         if(users.areFriends(id, friend)) {
             users.deleteFriend(id, friend);

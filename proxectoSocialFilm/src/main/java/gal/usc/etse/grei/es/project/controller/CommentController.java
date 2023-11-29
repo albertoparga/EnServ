@@ -302,6 +302,37 @@ public class CommentController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
+    @Operation(
+            operationId = "getOneComment",
+            summary = "Get details of one comment",
+            description = "Get details for a given comment. You must especify comments id. " +
+                    "You must be authenticated."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Comment details",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Assessment.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Bad token",
+                    content = @Content
+            ),
+    })
     public ResponseEntity<Assessment> get(@PathVariable("email") String email) {
         Optional<Assessment> comment = comments.get(email);
 

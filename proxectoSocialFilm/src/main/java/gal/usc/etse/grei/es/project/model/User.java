@@ -3,6 +3,7 @@ package gal.usc.etse.grei.es.project.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -14,14 +15,22 @@ import java.util.StringJoiner;
 
 @Document(collection = "users")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(
+        name = "User",
+        description = "A complete user representation"
+)
 public class User {
     @Id
     @NotBlank(message = "El campo email es obligatorio")
     @Email
+    @Schema(required = true, example = "test@test.com")
     private String email;
     @NotEmpty(message = "El campo name es obligatorio")
+    @Schema(example = "Usuario Usuario")
     private String name;
+    @Schema(example = "Spain")
     private String country;
+    @Schema(example = "https://placekitten.com/200/287")
     private String picture;
     @NotNull(message = "El campo birthday es obligatorio")
     private Date birthday;
