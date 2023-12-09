@@ -130,16 +130,19 @@ public class UserService {
     }
 
     public Boolean areFriends(String email, String amigo) {
-        Optional<User> usuario = users.findById(email);
-        List<User> list = usuario.get().getFriends();
-        if(list!=null) {
-            for (User u : list) {
-                if (u.getEmail().equals(amigo)) {
-                    return true;
+            Optional<User> usuario = users.findById(email);
+            if(usuario.isPresent()) {
+                List<User> list = usuario.get().getFriends();
+                if (list != null) {
+                    for (User u : list) {
+                        if (u.getEmail().equals(amigo)) {
+                            return true;
+                        }
+                    }
                 }
+                return false;
             }
-        }
-        return false;
+            return false;
      }
 
 }
