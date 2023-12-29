@@ -347,6 +347,8 @@ public class UserController {
                     responseCode = "200",
                     description = "The friend was added",
                     content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)
                     )
             ),
             @ApiResponse(
@@ -370,9 +372,9 @@ public class UserController {
 
         if(f.isPresent()) {
             users.addFriend(id, friend);
-
+            Optional<User> user = users.get(id);
             return ResponseEntity.ok()
-                    .body(null);
+                    .body(user.get());
         }
         return ResponseEntity.notFound().build();
     }
@@ -390,6 +392,8 @@ public class UserController {
                     responseCode = "200",
                     description = "The friend was deleted",
                     content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = User.class)
                     )
             ),
             @ApiResponse(
@@ -411,9 +415,10 @@ public class UserController {
     public ResponseEntity<User> deleteFriend(@PathVariable("id") String id, @PathVariable("friend") String friend) {
         if(users.areFriends(id, friend)) {
             users.deleteFriend(id, friend);
+            Optional<User> user = users.get(id);
 
             return ResponseEntity.ok()
-                    .body(null);
+                    .body(user.get());
         }
         return ResponseEntity.notFound().build();
     }
