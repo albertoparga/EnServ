@@ -366,15 +366,24 @@ public class UserController {
                     description = "Bad token",
                     content = @Content
             ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad request",
+                    content = @Content
+            ),
     })
     public ResponseEntity<User> addFriend(@PathVariable("id") String id, @RequestBody User friend) {
         Optional<User> f = users.get(friend.getEmail());
 
         if(f.isPresent()) {
-            users.addFriend(id, friend);
-            Optional<User> user = users.get(id);
-            return ResponseEntity.ok()
-                    .body(user.get());
+            if(!users.areFriends(id, friend.getEmail())) {
+                users.addFriend(id, friend);
+                Optional<User> user = users.get(id);
+                return ResponseEntity.ok()
+                        .body(user.get());
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
         }
         return ResponseEntity.notFound().build();
     }
